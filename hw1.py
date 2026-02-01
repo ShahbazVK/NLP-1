@@ -69,6 +69,8 @@ class NGramLM:
             for w in context:
                 if w != '<s>':
                     self.vocabulary.add(w)
+            if word == '</s>':
+                self.vocabulary.add(word)
 
     # Calculates the MLE probability of an n-gram
     # word is a string
@@ -117,7 +119,7 @@ class NGramLM:
     # delta is an float
     # Returns a string
     def generate_random_word(self, context: Tuple[str, ...], delta=.0) -> str:
-        words = sorted(self.vocabulary)
+        words = sorted(self.vocabulary.union({'</s>'}))
         r = random.random()
         cumul = 0.0
         for w in words:
