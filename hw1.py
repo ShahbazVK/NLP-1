@@ -133,12 +133,11 @@ class NGramLM:
     def generate_random_text(self, max_length: int, delta=.0) -> str:
         context = ('<s>',) * (self.n - 1)
         words = []
-        for _ in range(max_length):
+        while len(words) < max_length:
             word = self.generate_random_word(context, delta)
-            if word == '</s>':
-                break
-            words.append(word)
-            context = context[1:] + (word,)
+            if word != '</s>':
+                words.append(word)
+                context = context[1:] + (word,)
         return ' '.join(words)
 
 
@@ -149,6 +148,9 @@ def main(corpus_path: str, delta: float, seed: int):
 
     print(trigram_lm.get_sent_log_prob(word_tokenize(s1), delta))
     print(trigram_lm.get_sent_log_prob(word_tokenize(s2), delta))
+    gen = trigram_lm.generate_random_text(10, delta)
+    print('Generated (10 words):', gen)
+    print('Length:', len(gen.split()))
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="CS6320 HW1")
