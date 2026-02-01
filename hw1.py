@@ -118,16 +118,10 @@ class NGramLM:
     # Returns a string
     def generate_random_word(self, context: Tuple[str, ...], delta=.0) -> str:
         words = sorted(self.vocabulary)
-        if not words:
-            return ''
-        probs = [self.get_ngram_prob(w, context, delta) for w in words]
-        total = sum(probs)
-        if total <= 0:
-            return words[0]
         r = random.random()
         cumul = 0.0
-        for w, p in zip(words, probs):
-            cumul += p / total
+        for w in words:
+            cumul += self.get_ngram_prob(w, context, delta)
             if r < cumul:
                 return w
         return words[-1]
