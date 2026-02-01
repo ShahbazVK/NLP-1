@@ -135,13 +135,10 @@ class NGramLM:
     def generate_random_text(self, max_length: int, delta=.0) -> str:
         context = ('<s>',) * (self.n - 1)
         words = []
-        max_attempts = max_length * 100
-        attempts = 0
-        while len(words) < max_length and attempts < max_attempts:
-            attempts += 1
+        for _ in range(max_length):
             word = self.generate_random_word(context, delta)
             if word == '</s>':
-                continue
+                break
             words.append(word)
             context = context[1:] + (word,)
         return ' '.join(words)
