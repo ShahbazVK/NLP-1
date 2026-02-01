@@ -64,9 +64,11 @@ class NGramLM:
             key = (word, context)
             self.ngram_counts[key] = self.ngram_counts.get(key, 0) + 1
             self.context_counts[context] = self.context_counts.get(context, 0) + 1
-            self.vocabulary.add(word)
+            if word != '<s>':
+                self.vocabulary.add(word)
             for w in context:
-                self.vocabulary.add(w)
+                if w != '<s>':
+                    self.vocabulary.add(w)
 
     # Calculates the MLE probability of an n-gram
     # word is a string
