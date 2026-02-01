@@ -118,10 +118,16 @@ class NGramLM:
     # Returns a string
     def generate_random_word(self, context: Tuple[str, ...], delta=.0) -> str:
         words = sorted(self.vocabulary)
+        if not words:
+            return ''
+        probs = [self.get_ngram_prob(w, context, delta) for w in words]
+        total = sum(probs)
+        if total <= 0:
+            return words[0]
         r = random.random()
         cumul = 0.0
-        for w in words:
-            cumul += self.get_ngram_prob(w, context, delta)
+        for w, p in zip(words, probs):
+            cumul += p / total
             if r < cumul:
                 return w
         return words[-1]
@@ -133,11 +139,12 @@ class NGramLM:
     def generate_random_text(self, max_length: int, delta=.0) -> str:
         context = ('<s>',) * (self.n - 1)
         words = []
-        while len(words) < max_length:
+        for _ in range(max_length):
             word = self.generate_random_word(context, delta)
-            if word != '</s>':
-                words.append(word)
-                context = context[1:] + (word,)
+            if word == '</s>':
+                break
+            words.append(word)
+            context = context[1:] + (word,)
         return ' '.join(words)
 
 
@@ -148,9 +155,9 @@ def main(corpus_path: str, delta: float, seed: int):
 
     print(trigram_lm.get_sent_log_prob(word_tokenize(s1), delta))
     print(trigram_lm.get_sent_log_prob(word_tokenize(s2), delta))
-    gen = trigram_lm.generate_random_text(10, delta)
-    print('Generated (10 words):', gen)
-    print('Length:', len(gen.split()))
+
+    gen = trigram_lm.generate_random_text(15, delta)
+    print('Generated (%d words):' % len(gen.split()), gen[:80] + ('...' if len(gen) > 80 else ''))
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="CS6320 HW1")
